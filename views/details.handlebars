@@ -1,0 +1,28 @@
+<ul class="list-group">
+  <li class="list-group-item">
+    <strong>displayName:</strong>{{user.displayName}}
+  </li>
+  <li class="list-group-item">
+    <strong>userId:</strong>{{user.userId}}
+  </li>
+  <li class="list-group-item">
+    <strong>pictureUrl:</strong>{{user.pictureUrl}}
+  </li>
+  <li class="list-group-item">
+    <strong>statusMessage:</strong>{{user.statusMessage}}
+  </li>
+</ul>
+<form class="form-inline" method="POST" action="/user/send">
+  <div class="form-group">
+      <input type="text" name="to" class="form-control" placeholder="to" value="{{user.userId}}" style="display:none">
+	  <input type="text" name="message" class="form-control" placeholder="message">	  
+  </div>
+  <input type="submit" class="btn btn-primary" value="Send Message"/>
+</form>
+
+<hr>
+
+<a class="btn btn-default pull-left" href="/">Back</a>
+<form method="POST" action="/user/delete/{{user.userId}}?_method=DELETE">
+  <input type="submit" class="btn btn-danger pull-right" value="Delete" />
+</form>

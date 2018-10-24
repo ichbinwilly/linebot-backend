@@ -1,0 +1,15 @@
+<h1>Search users</h1>
+  {{#if error}}<span>{{error}}</span>{{/if}}
+<form class="form-inline" method="GET" action="/user/search">
+  <div class="form-group">
+      <input type="text" name="userId" class="form-control" placeholder="Search Users"
+  </div>
+  <input type="submit" class="btn btn-primary" value="Search" />
+</form>
+
+<h1>List</h1>
+<ul>
+  {{#each profiles}}
+	<a href="/user/search?userId={{this}}"><li>{{this}}</li></a>
+  {{/each}}
+</ul>

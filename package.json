@@ -1,0 +1,23 @@
+{
+  "name": "redis-nodejs-crud-example",
+  "version": "1.0.0",
+  "description": "An Example Application for NodeJs & Redis CRUD",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "NodeJS",
+    "Redis"
+  ],
+  "author": "Tharaka Romesh",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "express-handlebars": "^3.0.0",
+    "method-override": "^2.3.8",
+    "redis": "^2.7.1",
+    "request": "^2.88.0"
+  }
+}
