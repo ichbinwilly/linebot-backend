@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const exphb = require('express-handlebars');
 const redis = require('redis');
-const config = require('./config');
 const loadMessages = require('./load_messages');
 //create Redis Client
 const client = redis.createClient(process.env.REDISCLOUD_URL);
