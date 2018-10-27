@@ -5,11 +5,12 @@ const methodOverride = require('method-override');
 const exphb = require('express-handlebars');
 const redis = require('redis');
 const config = require('./config');
+const loadMessages = require('./load_messages');
 //create Redis Client
 const client = redis.createClient(config.getRedisUrl());
 
 client.on('connect', () => {
-  console.log('Connected to Redis....');  
+  console.log('Connected to Redis....');
 });
 
 //set port
@@ -17,6 +18,13 @@ const port = 3000;
 
 //init app
 const app = express();
+
+
+/******Socket IO** */
+const socketIO = require('socket.io');
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname, 'test.html');
+/****************** */
 // view engine
 app.engine('handlebars', exphb({
   defaultLayout: 'main'
@@ -32,9 +40,50 @@ app.use(bodyParser.urlencoded({
 //methodOverride
 app.use(methodOverride('_method'));
 
+app.get('/client', (req, res, next) => {
+  //res.sendFile('index.html');
+  res.sendFile(path.join(__dirname + '/index.html'));
+})
+
+app.get('/test', (req, res, next) => {
+  //res.sendFile('index.html');
+  res.sendFile(path.join(__dirname + '/test.html'));
+})
+app.get('/load', loadMessages.load);
+
+app.get('/getUserPhoto', (req, res, next) =>
+  {
+    loadMessages.loadUserPhoto(req, res, req.query.userId);
+  }
+);
+
+app.get('/client.js', (req, res, next) => {
+  res.sendFile(path.join(__dirname + '/client.js'));
+});
+
+app.get('/style.css', (req, res, next) => {
+  res.sendFile(path.join(__dirname + '/style.css'));
+});
 // search page
 app.get('/', (req, res, next) => {
-  profiles =[];
+  //var aa = client.rpop('test');
+  //aa = client.rpop('test');
+  //aa = client.rpop('test');
+  //console.log('rpop ppppppppppp' + aa);
+  
+  //loadMessages();
+ /*
+  str = JSON.stringify({ // store each message as a JSON object
+    m: 'test msg',
+    t: new Date().getTime(),
+    n: 'willy'
+  });
+
+  const result = client.rpush('test', str);
+  */
+  //console.log(result);
+
+  profiles = [];
   //getAllProfiles();
   client.keys('*', function (err, keys) {
     if (err) return console.log(err);
@@ -44,14 +93,14 @@ app.get('/', (req, res, next) => {
       profiles: keys
     });
   });
-  
-  
+
+
 });
 
 // search processing
 app.get('/user/search', (req, res, next) => {
   let id = req.query.userId;
-	console.log('id:' + id);
+  console.log('id:' + id);
   client.hgetall(id, (err, obj) => {
     if (!obj) {
       res.render('searchusers', {
@@ -98,10 +147,12 @@ app.post('/user/add', (req, res, next) => {
 
 // add user
 app.post('/user/send', (req, res, next) => {
+  
   var to = req.body.to;
   var message = req.body.message;
   var request = require('request');
-  
+  console.log('send message to ' + to);
+  console.log('send message message ' + message);
   var options = {
     url: 'https://api.line.me/v2/bot/message/push',
     headers: {
@@ -113,15 +164,14 @@ app.post('/user/send', (req, res, next) => {
     body: JSON.stringify({
       "to": to,
       "messages": [{
-          "type": "text",
-          "text": message
-        }
-      ]
+        "type": "text",
+        "text": message
+      }]
     })
   };
 
-  request.post(options, function(error, response, body){
-    res.redirect('/');
+  request.post(options, function (error, response, body) {
+    res.redirect('/client');
   });
 });
 
@@ -131,14 +181,30 @@ app.delete('/user/delete/:id', (req, res, next) => {
   res.redirect('/');
 });
 
+/*
 app.listen(port, () => {
   console.log('Server started on port :' + port);
+
+  
+   var chat =  [
+  '{"m":"Hi everyone!","t":1436263590869,"n":"Steve"}',
+    '{"m":"Hi Steve! Welcome to Hapi Chat!","t":1436263599489,"n":"Foxy"}',
+    '{"m":"Hapi Chat lets you chat with your friends!","t":1436263613141,"n":"Oprah"}',
+    '{"m":"Cool! How does it scale?","t":1436263620853,"n":"Steve"}',
+    '{"m":"Funny you should ask! It scales nicely because it uses Hapi.js and Redis!","t":1436263639989,"n":"Chroma"}',
+    '{"m":"Sweet! ","t":1436263645610,"n":"Steve"}',
+    '{"m":"Hello","t":1436264664835,"n":"Timmy"}',
+    '{"m":"Hi!","t":1436267152379,"n":"Timmy"}',
+    '{"m":"lkjlkjlk","t":1436270948402,"n":"dd"}',
+    '{"m":"Big fan of the little notifications at the top when a person joins","t":1436273109909,"n":"iteles"}'
+]
+  
   //flush db
-  /*
+  
   client.flushdb( function (err, succeeded) {
     console.log('flushdb' + succeeded); // will be true if successfull
   });
-  */
+  
 
 
   function callback(error, response, body) {
@@ -150,9 +216,27 @@ app.listen(port, () => {
     }
   }
 });
+*/
+//const server = app.use((req, res) => res.sendFile(INDEX) ).listen(PORT, () => console.log(`Listening on ${ PORT }`));
+const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+const io = socketIO(server);
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.on('disconnect', () => console.log('Client disconnected'));
+});
+
+//setInterval(() => io.emit('mytime', new Date().toTimeString()), 1000*5);
+setInterval(() => io.emit('mytime', JSON.stringify({ // store each message as a JSON object
+  m: 'test msg',
+  t: new Date().getTime(),
+  n: 'willy'
+})), 1000*5);
+
 var profiles = [];
+
 function getAllProfiles() {
   /**list all key, and get objects**/
-   return profiles;
+  return profiles;
   /**list all key, and get objects**/
 }
