@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -7,7 +8,7 @@ const redis = require('redis');
 const config = require('./config');
 const loadMessages = require('./load_messages');
 //create Redis Client
-const client = redis.createClient(config.getRedisUrl());
+const client = redis.createClient(process.env.REDISCLOUD_URL);
 
 client.on('connect', () => {
   console.log('Connected to Redis....');
@@ -157,7 +158,7 @@ app.post('/user/send', (req, res, next) => {
     url: 'https://api.line.me/v2/bot/message/push',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + config.getLineBotAccessToken(),
+      'Authorization': 'Bearer ' + process.env.CHANNEL_ACCESS_TOKEN,
     },
     method: "POST",
     //json: true,   // <--Very important!!!
