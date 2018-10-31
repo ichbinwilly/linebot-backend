@@ -9,32 +9,32 @@ const loadMessages = require('./load_messages');
 //create Redis Client
 const client = redis.createClient(process.env.REDISCLOUD_URL);
 
-function test(){
-  return getAsync('foo').then(function(res) {
+function test() {
+  return getAsync('foo').then(function (res) {
     console.log(res); // => 'bar'
   });
 }
 
 client.on('connect', () => {
   console.log('Connected to Redis....');
-  const {promisify} = require('util');
   const util = require('util');
   require('util.promisify').shim();
   client.set("foo", "bar", redis.print);
+
+  /** redis get example **/
   const getAsync = util.promisify(client.get).bind(client);
-  getAsync('foo').then(function(res) {
+  getAsync('foo').then(function (res) {
     console.log(res); // => 'bar'
   });
 
   client.hset("hash key", "hashtest 1", "some value", redis.print);
-  client.hget("hash key", "hashtest 1", function(err, reply) {
-    if (err) throw(err);
+  client.hget("hash key", "hashtest 1", function (err, reply) {
+    if (err) throw (err);
     console.log(reply);
-})
+  })
+  /** redis hget example **/
   const getAsync2 = util.promisify(client.hget).bind(client);
-
-  var result = getAsync2('hash key','hashtest 1').then(function(res, err) {
-    console.log("* hget *");
+  var result = getAsync2('hash key', 'hashtest 1').then(function (res, err) {
     console.log(res); // => 'bar'
     return res;
   }).then((nr) => {
@@ -80,11 +80,9 @@ app.get('/test', (req, res, next) => {
 })
 app.get('/load', loadMessages.load);
 
-app.get('/getUserPhoto', (req, res, next) =>
-  {
-    loadMessages.loadUserPhoto(req, res, req.query.userId);
-  }
-);
+app.get('/getUserPhoto', (req, res, next) => {
+  loadMessages.loadUserPhoto(req, res, req.query.userId);
+});
 
 app.get('/client.js', (req, res, next) => {
   res.sendFile(path.join(__dirname + '/client.js'));
@@ -111,17 +109,17 @@ app.get('/', (req, res, next) => {
   aa = client.rpop('test');
   */
   //console.log('rpop ppppppppppp' + aa);
-  
-  //loadMessages();
- /*
-  str = JSON.stringify({ // store each message as a JSON object
-    m: 'test msg',
-    t: new Date().getTime(),
-    n: 'willy'
-  });
 
-  const result = client.rpush('test', str);
-  */
+  //loadMessages();
+  /*
+   str = JSON.stringify({ // store each message as a JSON object
+     m: 'test msg',
+     t: new Date().getTime(),
+     n: 'willy'
+   });
+
+   const result = client.rpush('test', str);
+   */
   //console.log(result);
 
   profiles = [];
@@ -188,7 +186,7 @@ app.post('/user/add', (req, res, next) => {
 
 // add user
 app.post('/user/send', (req, res, next) => {
-  
+
   var to = req.body.to;
   var message = req.body.message;
   var request = require('request');
