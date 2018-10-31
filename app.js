@@ -9,8 +9,37 @@ const loadMessages = require('./load_messages');
 //create Redis Client
 const client = redis.createClient(process.env.REDISCLOUD_URL);
 
+function test(){
+  return getAsync('foo').then(function(res) {
+    console.log(res); // => 'bar'
+  });
+}
+
 client.on('connect', () => {
   console.log('Connected to Redis....');
+  const {promisify} = require('util');
+  const util = require('util');
+  require('util.promisify').shim();
+  client.set("foo", "bar", redis.print);
+  const getAsync = util.promisify(client.get).bind(client);
+  getAsync('foo').then(function(res) {
+    console.log(res); // => 'bar'
+  });
+
+  client.hset("hash key", "hashtest 1", "some value", redis.print);
+  client.hget("hash key", "hashtest 1", function(err, reply) {
+    if (err) throw(err);
+    console.log(reply);
+})
+  const getAsync2 = util.promisify(client.hget).bind(client);
+
+  var result = getAsync2('hash key','hashtest 1').then(function(res, err) {
+    console.log("* hget *");
+    console.log(res); // => 'bar'
+    return res;
+  }).then((nr) => {
+    console.log(nr);
+  });
 });
 
 //set port
@@ -66,9 +95,21 @@ app.get('/style.css', (req, res, next) => {
 });
 // search page
 app.get('/', (req, res, next) => {
-  //var aa = client.rpop('test');
-  //aa = client.rpop('test');
-  //aa = client.rpop('test');
+  /*
+  var aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  aa = client.rpop('test');
+  */
   //console.log('rpop ppppppppppp' + aa);
   
   //loadMessages();
@@ -227,11 +268,13 @@ io.on('connection', (socket) => {
 });
 
 //setInterval(() => io.emit('mytime', new Date().toTimeString()), 1000*5);
+/*
 setInterval(() => io.emit('mytime', JSON.stringify({ // store each message as a JSON object
   m: 'test msg',
   t: new Date().getTime(),
   n: 'willy'
 })), 1000*5);
+*/
 
 var profiles = [];
 
