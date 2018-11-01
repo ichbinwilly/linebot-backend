@@ -26,14 +26,9 @@ const hsetAsync = util.promisify(client.hset).bind(client);
 var addItemaddItem = 586;
 var removeItem = 601;
 client.on('connect', () => {
-  //client.hget(userId, fieldId, function (err, reply) {
-  //  if (err) throw (err);
-  //  console.log(reply);
-  //})
   console.log('Connected to Redis....');
 
-  //fake data injection
-  
+  //fake data injection  
   client.hset(userId, fieldId, "", ()=>
   {
     console.log('Done');    
