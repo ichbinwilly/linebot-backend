@@ -31,15 +31,18 @@ client.on('connect', () => {
   //  console.log(reply);
   //})
   console.log('Connected to Redis....');
-   client.hset(userId, fieldId, "[]", ()=>
+
+  //fake data injection
+  
+  client.hset(userId, fieldId, "", ()=>
   {
     console.log('Done');    
   });
   
-  /** Add Channel **/
   
+  /** Add Channel **/  
   hgetAsync(userId, fieldId)
-    .then((res) => add(res, 501))
+    .then((res, err) => add(res, err, 502))
     .then(function (res) {
       console.log(res);
       save(userId, fieldId, res);
@@ -58,16 +61,15 @@ client.on('connect', () => {
     })
     .catch((error) => {
       console.log('something wrong: ' + error);
-    })
-  */
+    })  
+    */
 });
 
 
-var add = function (res, additem) {
+var add = function (res, err, additem) {
   var testItem = additem;
   return new Promise(function (resolve, reject) {
-    console.log('res result: ' + res);
-    var jsonedObj = GenJsonObj(res)
+    var jsonedObj = GenJsonObj(res);
     var isFoundItem = IsFoundItem(jsonedObj, testItem)
     if(isFoundItem)
     {
@@ -105,7 +107,20 @@ function ToJsonString(obj) {
 }
 
 function GenJsonObj(str) {
+  try
+  {
+    JSON.parse(str);
+  }
+  catch(err)
+  {
+    console.log('invalid json str, create empty');
+    return GenEmptyArrary();
+  }
   return JSON.parse(str);
+}
+
+function GenEmptyArrary(){
+  return JSON.parse("[]");
 }
 
 function IsFoundItem(arr, item) {
