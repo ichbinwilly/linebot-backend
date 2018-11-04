@@ -1,23 +1,19 @@
 require('dotenv').config();
+require('util.promisify').shim();
 const redis = require('redis');
 const util = require('util');
-require('util.promisify').shim();
-//create Redis Client
 
-console.log(process.env.REDIS_TEST_URL);
-//const client = redis.createClient(process.env.REDIS_TEST_URL);
-const client = redis.createClient(6379, '127.0.0.1', {});
+//create Redis Client
+const client = redis.createClient(6379, process.env.REDIS_TEST_URL, {});
 
 function test() {
   return getAsync('foo').then(function (res) {
-    console.log(res); // => 'bar'
+    //console.log(res); // => 'bar'
   });
 }
 client.on('error', (error) => {
   console.log(error);
 });
-
-
 
 var userId = '1234567';
 var fieldId = 'subscribe_channels';
@@ -29,17 +25,17 @@ client.on('connect', () => {
   console.log('Connected to Redis....');
 
   //fake data injection  
-  client.hset(userId, fieldId, "", ()=>
-  {
-    console.log('Done');    
-  });
+  //client.hset(userId, fieldId, "", ()=>
+  //{
+  //  console.log('Done');    
+  //});
   
   
   /** Add Channel **/  
   hgetAsync(userId, fieldId)
-    .then((res, err) => add(res, err, 502))
+    .then((res, err) => add(res, err, 501))
     .then(function (res) {
-      console.log(res);
+      console.log('res: ' + res);
       save(userId, fieldId, res);
     })
     .catch((error) => {
