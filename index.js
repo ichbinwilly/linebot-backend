@@ -1,139 +1,39 @@
-require('dotenv').config();
-require('util.promisify').shim();
-const redis = require('redis');
-const util = require('util');
-
+const loadMessages = require('./load_messages');
+const channelManager = require('./channel-manager');
 //create Redis Client
-const client = redis.createClient(6379, process.env.REDIS_TEST_URL, {});
-
-function test() {
-  return getAsync('foo').then(function (res) {
-    //console.log(res); // => 'bar'
-  });
-}
-client.on('error', (error) => {
-  console.log(error);
-});
-
 var userId = '1234567';
 var fieldId = 'subscribe_channels';
-const hgetAsync = util.promisify(client.hget).bind(client);
-const hsetAsync = util.promisify(client.hset).bind(client);
-var addItemaddItem = 586;
+var addItemaddItem = 587;
 var removeItem = 601;
-client.on('connect', () => {
-  console.log('Connected to Redis....');
+//fake data injection  
+//client.hset(userId, fieldId, "", ()=>
+//{
+//  console.log('Done');    
+//});
 
-  //fake data injection  
-  //client.hset(userId, fieldId, "", ()=>
-  //{
-  //  console.log('Done');    
-  //});
-  
-  
-  /** Add Channel **/  
-  hgetAsync(userId, fieldId)
-    .then((res, err) => add(res, err, 501))
-    .then(function (res) {
-      console.log('res: ' + res);
-      save(userId, fieldId, res);
-    })
-    .catch((error) => {
-      console.log('something wrong: ' + error);
-    })
-  
-  /** Remove Channel **/
-  /*
-  hgetAsync(userId, fieldId)
-    .then(remove)
-    .then(function (res) {
-      console.log(res);
-      save(userId, fieldId, res);
-    })
-    .catch((error) => {
-      console.log('something wrong: ' + error);
-    })  
-    */
-});
-
-
-var add = function (res, err, additem) {
-  var testItem = additem;
-  return new Promise(function (resolve, reject) {
-    var jsonedObj = GenJsonObj(res);
-    var isFoundItem = IsFoundItem(jsonedObj, testItem)
-    if(isFoundItem)
-    {
-      var arr = AddItem(jsonedObj, testItem)
-      resolve(arr)
-    }
-    else{
-      const reason = new Error('Item existed in the arrary')
-      reject(reason)
-    }    
+/** Add Channel **/
+channelManager.hgetAsync(userId, fieldId)
+  .then((res, err) => channelManager.add(res, err, addItemaddItem))
+  .then(function (res) {
+    console.log('res: ' + res);
+    channelManager.save(userId, fieldId, res);
   })
-}
-
-var remove = function (res, err) {
-  return new Promise(function (resolve, reject) {
-
-    var jsonedObj = GenJsonObj(res);
-    var arr = RemoveItem(jsonedObj, removeItem);
-    resolve(arr)
+  .catch((error) => {
+    console.log('something wrong: ' + error);
   })
+function display(arr){
+  console.log('i am farrari: ' + arr);
 }
-
-var save = function (userId, fieldId, obj) {
-  hsetAsync(userId, fieldId, ToJsonString(obj.sort())).then(function (res, err) {
-  //client.hset(userId, fieldId, ToJsonString(obj), function () {
-    var result = hgetAsync(userId, fieldId).then(function (res, err) {
-      console.log("result: " + res); // => 'bar'
-      return res;
-    })
-  });
-}
-
-function ToJsonString(obj) {
-  return JSON.stringify(obj);
-}
-
-function GenJsonObj(str) {
-  try
-  {
-    JSON.parse(str);
-  }
-  catch(err)
-  {
-    console.log('invalid json str, create empty');
-    return GenEmptyArrary();
-  }
-  return JSON.parse(str);
-}
-
-function GenEmptyArrary(){
-  return JSON.parse("[]");
-}
-
-function IsFoundItem(arr, item) {
-  var isFound = arr.find(o => o === item);
-  if (isFound === undefined) {
-    return true
-  }
-  return false;
-}
-
-function AddItem(arr, item) {
-  var isFound = arr.find(o => o === item);
-  if (isFound === undefined) {
-    arr.push(item);
-  }
-  return arr;
-}
-
-function RemoveItem(arr, item) {
-  var position = arr.indexOf(item);
-  if (position > -1) {
-    arr.splice(position, 1);
-  }
-  return arr;
-}
+channelManager.listall(userId, fieldId, display);
+/** Remove Channel **/
+/*
+hgetAsync(userId, fieldId)
+  .then(remove)
+  .then(function (res) {
+    console.log(res);
+    save(userId, fieldId, res);
+  })
+  .catch((error) => {
+    console.log('something wrong: ' + error);
+  })  
+*/
