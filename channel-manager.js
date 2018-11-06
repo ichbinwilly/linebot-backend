@@ -29,10 +29,14 @@ client.on('error', (error) => {
  */
 function add(res, err, additem) {
     var testItem = additem;
+    console.log(typeof(res));
+    console.log(res);
     return new Promise(function (resolve, reject) {
         var jsonedObj = GenJsonObj(res);
+        console.log(typeof(jsonedObj));
+        console.log(jsonedObj);
         var isFoundItem = IsFoundItem(jsonedObj, testItem)
-        if (isFoundItem) {
+        if (!isFoundItem) {
             var arr = AddItem(jsonedObj, testItem)
             resolve(arr)
         } else {
@@ -44,8 +48,9 @@ function add(res, err, additem) {
 
 function remove(res, err, removeItem) {
     return new Promise(function (resolve, reject) {
-
+        console.log(res);
         var jsonedObj = GenJsonObj(res);
+        console.log(jsonedObj);
         var arr = RemoveItem(jsonedObj, removeItem);
         resolve(arr)
     })
@@ -85,18 +90,34 @@ function GenJsonObj(str) {
 }
 
 function GenEmptyArrary() {
-    return JSON.parse("[]");
+    var emptyObj = [];
+    //return JSON.parse("[]");
+    return emptyObj;
 }
 
 function IsFoundItem(arr, item) {
-    var isFound = arr.find(o => o === item);
-    if (isFound === undefined) {
-        return true
+    if(arr === null)
+        return false;
+    else
+    {
+        var isFound = arr.find(o => o === item);
+        if (isFound === undefined) {
+            return false
+        }
+        return true;
     }
-    return false;
 }
 
 function AddItem(arr, item) {
+    console.log('AddItem');
+    console.log(arr);
+    console.log(typeof(arr));
+    if(arr === null)
+    {
+        var tempArr = [];
+        tempArr.push(item);
+        return tempArr;
+    }
     var isFound = arr.find(o => o === item);
     if (isFound === undefined) {
         arr.push(item);
