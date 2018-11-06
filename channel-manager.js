@@ -2,8 +2,11 @@ require('dotenv').config();
 require('util.promisify').shim();
 const redis = require('redis');
 const util = require('util');
-const client = redis.createClient(6379, process.env.REDIS_TEST_URL, {});
-
+//const client = redis.createClient(6379, process.env.REDISCLOUD_URL, {});
+var urlFunc = require('url');
+var redisURL = urlFunc.parse(process.env.REDISCLOUD_URL);
+var client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
+client.auth(redisURL.auth.split(":")[1]);
 const hgetAsync = util.promisify(client.hget).bind(client);
 const hsetAsync = util.promisify(client.hset).bind(client);
 
@@ -11,7 +14,8 @@ module.exports = {
     hgetAsync: hgetAsync,
     save: save,
     add: add,
-    listall: listall
+    listall: listall,
+    remove: remove
 };
 
 client.on('connect', () => {
@@ -38,7 +42,7 @@ function add(res, err, additem) {
     })
 }
 
-function remove(res, err) {
+function remove(res, err, removeItem) {
     return new Promise(function (resolve, reject) {
 
         var jsonedObj = GenJsonObj(res);

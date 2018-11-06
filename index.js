@@ -1,10 +1,10 @@
 const loadMessages = require('./load_messages');
 const channelManager = require('./channel-manager');
 //create Redis Client
-var userId = '1234567';
+var userId = 'fakeId';
 var fieldId = 'subscribe_channels';
 var addItemaddItem = 587;
-var removeItem = 601;
+var removeItem = 587;
 //fake data injection  
 //client.hset(userId, fieldId, "", ()=>
 //{
@@ -12,6 +12,7 @@ var removeItem = 601;
 //});
 
 /** Add Channel **/
+/*
 channelManager.hgetAsync(userId, fieldId)
   .then((res, err) => channelManager.add(res, err, addItemaddItem))
   .then(function (res) {
@@ -21,19 +22,26 @@ channelManager.hgetAsync(userId, fieldId)
   .catch((error) => {
     console.log('something wrong: ' + error);
   })
+
+*/
 function display(arr){
   console.log('i am farrari: ' + arr);
+  console.log('i am farrari arr.length: ' + JSON.parse(arr).length);
+  if(JSON.parse(arr).length > 2)
+    console.log('amount is equal to or greater to 1');
+  else
+    console.log('less than 1');
 }
 channelManager.listall(userId, fieldId, display);
 /** Remove Channel **/
 /*
-hgetAsync(userId, fieldId)
-  .then(remove)
+channelManager.hgetAsync(userId, fieldId)
+  .then((res, err) => channelManager.remove(res, err, removeItem))
   .then(function (res) {
     console.log(res);
-    save(userId, fieldId, res);
+    channelManager.save(userId, fieldId, res);
   })
   .catch((error) => {
     console.log('something wrong: ' + error);
-  })  
+  })
 */
