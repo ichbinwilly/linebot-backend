@@ -32,6 +32,7 @@ function display(arr){
   else
     console.log('less than 1');
 }
+//demo list all and callback fn
 channelManager.listall(userId, fieldId, display);
 /** Remove Channel **/
 /*
